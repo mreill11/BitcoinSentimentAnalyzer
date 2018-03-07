@@ -14,3 +14,7 @@ Sentiment Score Metrics:
         return 'neutral'
     else:
         return 'negative'
+
+
+We don't need to store tweets at all, we just need to live calculate sentiment and store that + timestamp
+Having problems getting good negative scores
