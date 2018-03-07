@@ -1,0 +1,16 @@
+1. Install mongodb by following this guide exactly: https://treehouse.github.io/installation-guides/mac/mongo-mac.html
+2. Install pymongo: http://api.mongodb.com/python/current/installation.html
+
+
+
+http://stats.seandolinar.com/collecting-twitter-data-storing-tweets-in-mongodb/
+https://www.twilio.com/blog/2017/09/sentiment-analysis-python-messy-data-nltk.html
+
+
+Sentiment Score Metrics:
+    if analysis.sentiment.polarity > 0:
+        return 'positive'
+    elif analysis.sentiment.polarity == 0:
+        return 'neutral'
+    else:
+        return 'negative'
