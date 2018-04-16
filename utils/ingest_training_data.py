@@ -1,7 +1,7 @@
 import csv
 
-pos_tweets = open('pos_tweets.txt', 'w')
-neg_tweets = open('neg_tweets.txt', 'w')
+pos_tweets = open('../data/pos_tweets.txt', 'w')
+neg_tweets = open('../data/neg_tweets.txt', 'w')
 
 with open('training_data.csv', 'r') as f:
     reader = csv.reader(f)
