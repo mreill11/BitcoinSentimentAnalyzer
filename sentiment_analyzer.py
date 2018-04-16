@@ -5,22 +5,16 @@ import nltk
 from nltk.classify import NaiveBayesClassifier
 from tweepy import OAuthHandler
 from textblob import TextBlob
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
 
 def format_tweet(tweet):    # Tokenizes tweet into indivual words
     return({word: True for word in nltk.word_tokenize(tweet)})
 
 def clean_tweet(tweet):
-    '''
-    Utility function to clean tweet text by removing links, special characters
-    using simple regex statements.
-    '''
     return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
 
-def get_tweet_sentiment(tweet):         # TEXTBLOB SENTIMENT ANALYZER
-    '''
-    Utility function to classify sentiment of passed tweet
-    using textblob's sentiment method
-    '''
+def getTextBlobSentiment(tweet):         # TEXTBLOB SENTIMENT ANALYZER
     # create TextBlob object of passed tweet text
     analysis = TextBlob(clean_tweet(tweet))
     # set sentiment
@@ -32,9 +26,6 @@ def get_tweet_sentiment(tweet):         # TEXTBLOB SENTIMENT ANALYZER
         return 'negative'
 
 def get_tweets(self, query, count = 10):
-    '''
-    Main function to fetch tweets and parse them.
-    '''
     # empty list to store parsed tweets
     tweets = []
 
@@ -49,7 +40,7 @@ def get_tweets(self, query, count = 10):
             # saving text of tweet
             parsed_tweet['text'] = tweet.text
             # saving sentiment of tweet
-            parsed_tweet['sentiment'] = self.get_tweet_sentiment(tweet.text)
+            parsed_tweet['sentiment'] = self.getTextBlobSentiment(tweet.text)
 
             # appending parsed tweet to tweets list
             if tweet.retweet_count > 0:
@@ -66,18 +57,12 @@ def get_tweets(self, query, count = 10):
         # print error (if any)
         print("Error : " + str(e))
 
-def main():
-    # print("POSITIVE:\n")
-    #
-    # with open("./pos_tweets.txt") as f:
-    #     for i in f:
-    #         print(get_tweet_sentiment(i))
-    #
-    # print("NEGATIVE:\n")
-    # with open("./neg_tweets.txt") as f:
-    #     for i in f:
-    #         print(get_tweet_sentiment(i))
+def vader_sentiment_analyzer(tweet):
+    vader_analyzer = SentimentIntensityAnalyzer()
+    vs = vader_analyzer.polarity_scores(tweet)
+    return vs
 
+def main():
     pos = []
     with open("./pos_tweets.txt") as f:
         for i in f:
@@ -95,16 +80,11 @@ def main():
 
     classifier = NaiveBayesClassifier.train(training)
     classifier.show_most_informative_features()
-    # print("Dumping my BTC. Not looking good." + " - " + get_tweet_sentiment("Dumping my BTC. Not looking good."))
-    # print("Selling my bitcoins" + " - " + get_tweet_sentiment("Selling my bitcoins"))
-    # print("Loving my bitcoins never getting rid of them" + " - " + get_tweet_sentiment("Loving my bitcoins never getting rid of them"))
-    # print("I hate bitcoin" + " - " + get_tweet_sentiment("I hate bitcoin"))
-    # picking positive tweets from tweets
-    # ptweets = [tweet for tweet in tweets if tweet['sentiment'] == 'positive']
-    # print("Positive tweets percentage: {} %".format(100*len(ptweets)/len(tweets)))
-    # ntweets = [tweet for tweet in tweets if tweet['sentiment'] == 'negative']
-    # print("Negative tweets percentage: {} %".format(100*len(ntweets)/len(tweets)))
-    # print("Neutral tweets percentage: {} %".format(100*(len(tweets) - len(ntweets) - len(ptweets))/len(tweets)))
+
+    vader_analyzer = SentimentIntensityAnalyzer()
+    for sentence in sentences:
+        vs = vader_analyzer.polarity_scores(sentence)
+        print("{:-<65} {}".format(sentence, str(vs)))
 
 if __name__ == "__main__":
     # calling main function

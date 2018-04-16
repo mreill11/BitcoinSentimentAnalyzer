@@ -1,7 +1,18 @@
 from __future__ import print_function
 import tweepy
 import json
+import re
+import time
 from pymongo import MongoClient
+import re
+import tweepy
+import pymongo
+import nltk
+from nltk.classify import NaiveBayesClassifier
+from tweepy import OAuthHandler
+from textblob import TextBlob
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
 
 class StreamListener(tweepy.StreamListener):
     """
@@ -19,22 +30,72 @@ class StreamListener(tweepy.StreamListener):
 
     def on_data(self, data):
         """This will be called each time we receive stream data"""
-        client = MongoClient('localhost', 27017)
-        db = client.tweetsdb
+        # client = MongoClient('localhost', 27017)
+        # db = client.tweetsdb
         datajson = json.loads(data)
-        
+
 
         # We only want to store tweets in English because of Sentiment Analyzer
-        if "lang" in datajson and datajson["lang"] == "en":
-            db.tweetscollection.insert(datajson)
+        if "lang" in datajson and datajson["lang"] == "en" and "created_at" in datajson:
+            #db.tweetscollection.insert(datajson)
+            tweet = clean_tweet(datajson["text"])
+            if not tweet.startswith('RT') and not detect_ad(tweet):
+                process_tweet(tweet, datajson["created_at"])
+                #tweetfile.write(tweet + "\n")
+
+def detect_ad(tweet):
+    adwords = ["FREE", "install", "don't miss out", "install now", "BONUS", "PRICE WATCH"]
+    for word in adwords:
+        if word.upper() in tweet.upper():
+            return True
+    return False
+
+def format_tweet(tweet):    # Tokenizes tweet into indivual words
+    return({word: True for word in nltk.word_tokenize(tweet)})
+
+def clean_tweet(tweet):
+    return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
+
+def getTextBlobSentiment(tweet):         # TEXTBLOB SENTIMENT ANALYZER
+    # create TextBlob object of passed tweet text
+    analysis = TextBlob(clean_tweet(tweet))
+    # set sentiment
+    return analysis.sentiment.polarity
+
+def vader_sentiment_analyzer(tweet):
+    vader_analyzer = SentimentIntensityAnalyzer()
+    vs = vader_analyzer.polarity_scores(tweet)
+    return vs['compound']
+
+def process_tweet(tweet, created_at):
+    textblob_sentiment = getTextBlobSentiment(tweet)
+    vader_sentiment = vader_sentiment_analyzer(tweet)
+    avg_sentiment_score = (textblob_sentiment + vader_sentiment) / 2.0
+    ts = time.strftime('%Y-%m-%d %H:%M:%S', time.strptime(created_at,'%a %b %d %H:%M:%S +0000 %Y'))
+    data = {}
+    data["sentiment"] = avg_sentiment_score
+    data["time"] = ts
+    json_string = json.dumps(data)
+    store_tweet(json_string)
+    print(json_string)
 
 
-CONSUMER_KEY = "cue6yOS0gH1lQ9XYRfSvt7zPD"
-CONSUMER_SECRET = "OTSlghuTGdDwMlG4N7twuEPtZDBdjqpAlEZtQDARTYGvVs1YEh"
-ACCESS_TOKEN = "793906953755951105-gvQ7tqhU7g2wwfcw1yw96zGGGcjiHfa"
-ACCESS_TOKEN_SECRET = "8pGfOsYfgd3mVY3SVi8tAWukPLg7htePEFOgyaCmIQBXS"
+def store_tweet(data):
+    client = MongoClient('localhost', 27017)
+    db = client['tweetsdb']
+    collection = db['sentiment_collection']
+    collection.insert(json.loads(data))
+
+
+
+CONSUMER_KEY = "fuOzrcFr92XQDjsUa7cwUJtUZ"
+CONSUMER_SECRET = "kMKsMx9WEuwNHztEWTPns8OT6hvL2858vILLAImY3isBfMm0vB"
+ACCESS_TOKEN = "2677412642-e6FMkXhJIWPL5kd6MCNccKNjkF53v8j3atuJDJY"
+ACCESS_TOKEN_SECRET = "Xsglk8QuAVLE1WVtkfFdq8wWl0O9AY4cVdLpcTkXOI21w"
 
 KEYWORDS_BTC_PATH = 'filter_words.txt'
+
+tweetfile = open('tweets.txt', 'w')
 
 
 #Authenticating

@@ -13,6 +13,5 @@ for tweet in tweet_list:
     else:
         pos_tweets.write(str(tweet[3]) + "\n")
 
-
 pos_tweets.close()
 neg_tweets.close()

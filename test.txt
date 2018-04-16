@@ -1,0 +1,6 @@
+positive_tweets
+positive_tweets
+neutral_tweets
+neutral_tweets
+negative_tweets
+negative_tweets
