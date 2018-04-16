@@ -86,8 +86,6 @@ def store_tweet(data):
     collection = db['sentiment_collection']
     collection.insert(json.loads(data))
 
-
-
 CONSUMER_KEY = "fuOzrcFr92XQDjsUa7cwUJtUZ"
 CONSUMER_SECRET = "kMKsMx9WEuwNHztEWTPns8OT6hvL2858vILLAImY3isBfMm0vB"
 ACCESS_TOKEN = "2677412642-e6FMkXhJIWPL5kd6MCNccKNjkF53v8j3atuJDJY"
