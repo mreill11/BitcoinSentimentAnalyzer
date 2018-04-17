@@ -12,6 +12,8 @@ from nltk.classify import NaiveBayesClassifier
 from tweepy import OAuthHandler
 from textblob import TextBlob
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+import ccxt
+
 
 class StreamListener(tweepy.StreamListener):
     """
@@ -67,13 +69,19 @@ def vader_sentiment_analyzer(tweet):
     return vs['compound']
 
 def process_tweet(tweet, created_at):
+    global TICKER
+    global current_btc_bid
+    TICKER = TICKER + 1
     textblob_sentiment = getTextBlobSentiment(tweet)
     vader_sentiment = vader_sentiment_analyzer(tweet)
     avg_sentiment_score = (textblob_sentiment + vader_sentiment) / 2.0
     ts = time.strftime('%Y-%m-%d %H:%M:%S', time.strptime(created_at,'%a %b %d %H:%M:%S +0000 %Y'))
+    if TICKER % 50 == 0:
+        current_btc_bid = get_btc_bid()
     data = {}
     data["sentiment"] = avg_sentiment_score
     data["time"] = ts
+    data["btc_bid"] = current_btc_bid
     json_string = json.dumps(data)
     store_tweet(json_string)
     print(json_string)
@@ -84,12 +92,20 @@ def store_tweet(data):
     collection = db['sentiment_collection']
     collection.insert(json.loads(data))
 
+def get_btc_bid():
+    bitmex_ticker = bitmex.fetch_ticker('BTC/USD')
+    return bitmex_ticker['bid']
+
 CONSUMER_KEY = "fuOzrcFr92XQDjsUa7cwUJtUZ"
 CONSUMER_SECRET = "kMKsMx9WEuwNHztEWTPns8OT6hvL2858vILLAImY3isBfMm0vB"
 ACCESS_TOKEN = "2677412642-e6FMkXhJIWPL5kd6MCNccKNjkF53v8j3atuJDJY"
 ACCESS_TOKEN_SECRET = "Xsglk8QuAVLE1WVtkfFdq8wWl0O9AY4cVdLpcTkXOI21w"
 
 KEYWORDS_BTC_PATH = 'data/filter_words.txt'
+
+TICKER = 0
+bitmex = ccxt.bitmex()
+current_btc_bid = get_btc_bid()
 
 #Authenticating
 auth1 = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
