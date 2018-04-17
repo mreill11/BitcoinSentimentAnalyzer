@@ -13,7 +13,6 @@ from tweepy import OAuthHandler
 from textblob import TextBlob
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-
 class StreamListener(tweepy.StreamListener):
     """
     tweepy.StreamListener is a class provided by tweepy used to access
@@ -79,7 +78,6 @@ def process_tweet(tweet, created_at):
     store_tweet(json_string)
     print(json_string)
 
-
 def store_tweet(data):
     client = MongoClient('localhost', 27017)
     db = client['tweetsdb']
@@ -92,9 +90,6 @@ ACCESS_TOKEN = "2677412642-e6FMkXhJIWPL5kd6MCNccKNjkF53v8j3atuJDJY"
 ACCESS_TOKEN_SECRET = "Xsglk8QuAVLE1WVtkfFdq8wWl0O9AY4cVdLpcTkXOI21w"
 
 KEYWORDS_BTC_PATH = 'data/filter_words.txt'
-
-#tweetfile = open('tweets.txt', 'w')
-
 
 #Authenticating
 auth1 = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
