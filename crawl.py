@@ -1,11 +1,10 @@
 from __future__ import print_function
 import tweepy
+import urllib
 import json
 import re
 import time
 from pymongo import MongoClient
-import re
-import tweepy
 import pymongo
 import nltk
 from nltk.classify import NaiveBayesClassifier
@@ -13,7 +12,6 @@ from tweepy import OAuthHandler
 from textblob import TextBlob
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import ccxt
-
 
 class StreamListener(tweepy.StreamListener):
     """
@@ -76,7 +74,7 @@ def process_tweet(tweet, created_at):
     vader_sentiment = vader_sentiment_analyzer(tweet)
     avg_sentiment_score = (textblob_sentiment + vader_sentiment) / 2.0
     ts = time.strftime('%Y-%m-%d %H:%M:%S', time.strptime(created_at,'%a %b %d %H:%M:%S +0000 %Y'))
-    if TICKER % 50 == 0:
+    if TICKER % 100 == 0:
         current_btc_bid = get_btc_bid()
     data = {}
     data["sentiment"] = avg_sentiment_score
@@ -88,7 +86,8 @@ def process_tweet(tweet, created_at):
 
 def store_tweet(data):
     client = MongoClient('localhost', 27017)
-    db = client['tweetsdb']
+    web_client = MongoClient("mongodb+srv://" + urllib.parse.quote("mmreilly31@gmail.com") + ":Edgew00d!@cluster0-b82dm.mongodb.net/tweetsdb")
+    db = web_client.tweetsdb
     collection = db['sentiment_collection']
     collection.insert(json.loads(data))
 

@@ -5,4 +5,5 @@ This is a Bitcoin market sentiment analyzer that uses various sentiment analysis
 2. The plotter uses the Plotly Python package to plot the sentiments and BTC prices on a single graph to allow for comparison.
 
 The plotter will plot whatever data you have in your MongoDB, so if you wish to implement the analyzer you must run the crawler for a while first.
+
 ```python crawl.py```
