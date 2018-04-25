@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from __future__ import print_function
 import tweepy
 import urllib
@@ -10,8 +11,9 @@ import nltk
 from nltk.classify import NaiveBayesClassifier
 from tweepy import OAuthHandler
 from textblob import TextBlob
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import ccxt
+nltk.download('vader_lexicon')
 
 class StreamListener(tweepy.StreamListener):
     """
@@ -85,10 +87,9 @@ def process_tweet(tweet, created_at):
     print(json_string)
 
 def store_tweet(data):
-    client = MongoClient('localhost', 27017)
-    web_client = MongoClient("mongodb+srv://" + urllib.parse.quote("mmreilly31@gmail.com") + ":Edgew00d!@cluster0-b82dm.mongodb.net/tweetsdb")
-    db = web_client.tweetsdb
-    collection = db['sentiment_collection']
+    client = MongoClient("mongodb+srv://db_admin:Edgew00d!@cluster0-b82dm.mongodb.net/tweetsdb")
+    db = client.tweetsdb
+    collection = db.sentiment_collection
     collection.insert(json.loads(data))
 
 def get_btc_bid():
