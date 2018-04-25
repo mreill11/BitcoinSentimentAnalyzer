@@ -8,12 +8,12 @@ import time
 from pymongo import MongoClient
 import pymongo
 import nltk
-from nltk.classify import NaiveBayesClassifier
+#from nltk.classify import NaiveBayesClassifier
 from tweepy import OAuthHandler
 from textblob import TextBlob
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import ccxt
-nltk.download('vader_lexicon')
+#nltk.download('vader_lexicon')
 
 class StreamListener(tweepy.StreamListener):
     """
@@ -77,7 +77,12 @@ def process_tweet(tweet, created_at):
     avg_sentiment_score = (textblob_sentiment + vader_sentiment) / 2.0
     ts = time.strftime('%Y-%m-%d %H:%M:%S', time.strptime(created_at,'%a %b %d %H:%M:%S +0000 %Y'))
     if TICKER % 100 == 0:
-        current_btc_bid = get_btc_bid()
+        try:
+            current_btc_bid = get_btc_bid()
+        except KeyboardInterrupt:
+            return
+        except:
+            print("Bitcoin value retrieval error")
     data = {}
     data["sentiment"] = avg_sentiment_score
     data["time"] = ts
