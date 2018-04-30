@@ -3,8 +3,9 @@ import numpy as np
 from scipy import stats
 from scipy import signal
 import pandas as pd
-import matplotlib.pyplot as plt
+import matplotlib
 matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 sentiments = []
 datetimes = []
@@ -29,5 +30,7 @@ print("Total number of datapoints: {}".format(count))
 slope, intercept, r_value, p_value, std_err = stats.linregress(sentiments, btc_bids)
 print("Slope: {}\nIntercept: {}\nR: {}\nR-Squared: {}\nP-Value: {}\nStd Error: {}".format(slope, intercept, r_value, r_value**2, p_value, std_err))
 
-filtered_sentiments = scipy.signal.savgol_filter(sentiments, 7, 2)
-plot(datetimes, filtered_sentiments)
+filtered_sentiments = signal.savgol_filter(sentiments, 7, 2)
+plt.plot(datetimes, filtered_sentiments)
+fig = plt.figure()
+fig.savefig('plot.png')
