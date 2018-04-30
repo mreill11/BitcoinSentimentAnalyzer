@@ -5,7 +5,7 @@ from datetime import datetime
 from pymongo import MongoClient
 import pandas_datareader.data as web
 
-FREQ = 1000
+FREQ = 2000
 
 sentiments = []
 compressed_sentiments = []
@@ -13,9 +13,9 @@ datetimes = []
 compressed_datetimes = []
 btc_bids = []
 btc_bid_datetimes = []
-client = MongoClient('localhost', 27017)
-db = client['tweetsdb']
-sentiment_collection = db['sentiment_collection']
+client = MongoClient("mongodb+srv://db_admin:Edgew00d!@cluster0-b82dm.mongodb.net/tweetsdb")
+db = client.tweetsdb
+sentiment_collection = db.sentiment_collection
 
 cursor = sentiment_collection.find({})
 for document in cursor:
@@ -52,7 +52,6 @@ btc_price = go.Scatter(
 
 layout = go.Layout(
     title='Bitcoin Price vs Twitter Sentiment',
-    xaxis = list(type = "category"),
     yaxis=dict(
         title='Bitcoin Price (USD)',
         titlefont=dict(
