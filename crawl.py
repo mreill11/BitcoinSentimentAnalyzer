@@ -15,6 +15,7 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import ccxt
 #nltk.download('vader_lexicon')
 
+
 class StreamListener(tweepy.StreamListener):
     """
     tweepy.StreamListener is a class provided by tweepy used to access
@@ -45,10 +46,12 @@ class StreamListener(tweepy.StreamListener):
                 #tweetfile.write(tweet + "\n")
 
 def detect_ad(tweet):
-    adwords = ["FREE", "install", "don't miss out", "install now", "BONUS", "PRICE WATCH"]
+    adwords = ["FREE", "install", "don't miss out", "install now", "BONUS", "PRICE WATCH", "price alert", "giveaway", "binance.com"]
     for word in adwords:
         if word.upper() in tweet.upper():
             return True
+    if "Ethereum" in tweet.upper():
+        return True
     return False
 
 def format_tweet(tweet):    # Tokenizes tweet into indivual words
@@ -74,7 +77,7 @@ def process_tweet(tweet, created_at):
     TICKER = TICKER + 1
     textblob_sentiment = getTextBlobSentiment(tweet)
     vader_sentiment = vader_sentiment_analyzer(tweet)
-    avg_sentiment_score = (textblob_sentiment + vader_sentiment) / 2.0
+    avg_sentiment_score = (textblob_sentiment * 0.3) + (vader_sentiment * 0.7)
     ts = time.strftime('%Y-%m-%d %H:%M:%S', time.strptime(created_at,'%a %b %d %H:%M:%S +0000 %Y'))
     if TICKER % 100 == 0:
         try:
@@ -87,9 +90,9 @@ def process_tweet(tweet, created_at):
     data["sentiment"] = avg_sentiment_score
     data["time"] = ts
     data["btc_bid"] = current_btc_bid
+    data["tweet"] = tweet
     json_string = json.dumps(data)
     store_tweet(json_string)
-    print(json_string)
 
 def store_tweet(data):
     client = MongoClient("mongodb+srv://db_admin:Edgew00d!@cluster0-b82dm.mongodb.net/tweetsdb")

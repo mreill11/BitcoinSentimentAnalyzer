@@ -1,10 +1,14 @@
 import plotly.plotly as py
 import plotly.graph_objs as go
-
+import numpy as np
+from scipy.interpolate import interp1d
 from datetime import datetime
 from pymongo import MongoClient
 import pandas_datareader.data as web
-
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from scipy import signal
 FREQ = 2000
 
 sentiments = []
@@ -34,10 +38,14 @@ for sentiment in sentiments:
         compressed_sentiments.append((avg) / float(FREQ))
         compressed_datetimes.append(datetimes[count])
         avg = 0.0
-
+#pd_datetimes = np.array(compressed_datetimes)
+#pd_sentiments = np.array(compressed_sentiments)
+#interpolated_datetimes = np.linspace(pd_sentiments.min(), pd_sentiments.max(), 300)
+#interpolated_sentiments = interp1d(pd_datetimes, pd_sentiments)
+#smooth_sentiments = spline(pd_sentiments, compressed_datetimes, interpolated_datetimes)
 twitter_sentiment = go.Scatter(
                 x=compressed_datetimes,
-                y=compressed_sentiments,
+                y=signal.savgol_filter(compressed_sentiments, 53, 3),
                 name = "Twitter Sentiment",
                 line = dict(color = '#17BECF'),
                 opacity = 0.8,
